@@ -1,0 +1,32 @@
+ads|广告过滤规则，包含常见广告域名、追踪域名、推广服务域名，用于减少广告请求和隐私跟踪。
+private|内网/私有域名规则，包含局域网、路由器、NAS、私有服务相关域名，建议直连访问。
+fakeip-filter|Fake-IP 排除规则，用于避免指定域名进入 Fake-IP 映射，提升局域网、时间同步、网络服务兼容性。
+fakeip-filter-lite|Fake-IP 精简排除规则，小体积版本，适合资源占用敏感设备。
+trackerslist|BT、P2P、统计追踪器规则，用于阻止恶意 Tracker 请求。
+microsoft-cn|微软中国服务规则，包括 Windows 更新、Microsoft 服务、中国区域 CDN。
+apple-cn|苹果中国服务规则，包括 App Store、中国区 Apple 服务。
+google-cn|谷歌中国服务规则，用于匹配 Google 中国相关服务。
+games-cn|中国游戏平台规则，包括国内游戏平台和游戏服务。
+games|国际游戏平台规则，包括 Steam、游戏平台服务器等。
+netflix|Netflix 流媒体服务规则，用于 Netflix 分流。
+disney|Disney+ 流媒体服务规则。
+max|Max/HBO Max 流媒体服务规则。
+primevideo|Amazon Prime Video 流媒体服务规则。
+appletv|Apple TV+ 流媒体服务规则。
+youtube|YouTube 视频服务规则。
+tiktok|TikTok 服务规则。
+bilibili|哔哩哔哩服务规则。
+spotify|Spotify 音乐服务规则。
+media|综合媒体流媒体规则。
+ai|人工智能服务规则，包括 AI 平台相关域名。
+networktest|网络测速、连通性测试相关规则。
+tld-proxy|代理域名规则，用于匹配代理服务相关域名。
+gfw|被墙域名规则，用于代理访问。
+proxy|代理列表规则。
+cn|中国大陆域名规则，用于国内服务直连。
+cn-lite|中国大陆精简域名规则，小体积版本。
+privateip|私有 IP 地址规则，包含局域网、保留地址范围，用于直连访问。
+cnip|中国大陆 IP 地址规则，用于国内 IP 分流和直连。
+telegramip|Telegram IP 地址规则，用于 Telegram 服务分流。
+netflixip|Netflix IP 地址规则，用于 Netflix 流媒体服务分流。
+mediaip|媒体服务 IP 地址规则，包含流媒体相关 IP 地址。

@@ -26,17 +26,17 @@ jobs:
         echo "singbox_core_compatible_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/{lines[++count]=$0} END{print lines[count-1]}' | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p')" >> ${GITHUB_ENV}
         echo "singbox_rules_latest_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/ {last=$0} END {print last}' | sed -n 's/^* \([0-9]\+\):.*/\1/p')" >> ${GITHUB_ENV}
         echo "singbox_rules_compatible_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/{lines[++count]=$0} END{print lines[count-1]}' | sed -n 's/^* \([0-9]\+\):.*/\1/p')" >> ${GITHUB_ENV}
-        echo "domains_download_url=https://github.com/DustinWin/domain-list-custom/releases/download/domains" >> ${GITHUB_ENV}
-        echo "ips_download_url=https://github.com/DustinWin/geoip/releases/download/ips" >> ${GITHUB_ENV}
+        echo "domains_download_url=https://github.com/RuleKai/domain-list-custom/releases/download/domains" >> ${GITHUB_ENV}
+        echo "ips_download_url=https://github.com/RuleKai/geoip/releases/download/ips" >> ${GITHUB_ENV}
       shell: bash
 
     - name: Clone Repository
       uses: actions/checkout@v7
 
-    - name: Checkout `DustinWin/domain-list-custom`
+    - name: Checkout `RuleKai/domain-list-custom`
       uses: actions/checkout@v7
       with:
-        repository: DustinWin/domain-list-custom
+        repository: RuleKai/domain-list-custom
         path: custom
 
     - name: Checkout `v2fly/domain-list-community`
@@ -114,14 +114,14 @@ jobs:
       run: |
         mkdir -p ./mihomo-geodata/
         # Download mihomo geoip files (.mmdb)
-        mihomo_mmdb=($(curl -sSL https://api.github.com/repos/DustinWin/geoip/releases | awk '/"browser_download_url"/' | awk '/.mmdb/' | awk -F '"' '{print $4}'))
+        mihomo_mmdb=($(curl -sSL https://api.github.com/repos/RuleKai/geoip/releases | awk '/"browser_download_url"/' | awk '/.mmdb/' | awk -F '"' '{print $4}'))
         count_mihomo_mmdb=${#mihomo_mmdb[@]}
         for ((i = 0; i < count_mihomo_mmdb; i++)); do
           wget -q -P ./mihomo-geodata/ "${mihomo_mmdb[i]}"
         done
 
         # Download `mihomo` other geoip files (except .mmdb)
-        mihomo_others=($(curl -sSL https://api.github.com/repos/DustinWin/geoip/releases | awk '/"browser_download_url"/' | awk '/\/mihomo-geodata\//' | awk '!/\.mmdb/' | awk -F '"' '{print $4}'))
+        mihomo_others=($(curl -sSL https://api.github.com/repos/RuleKai/geoip/releases | awk '/"browser_download_url"/' | awk '/\/mihomo-geodata\//' | awk '!/\.mmdb/' | awk -F '"' '{print $4}'))
         count_mihomo_others=${#mihomo_others[@]}
         for ((i = 0; i < count_mihomo_others; i++)); do
           wget -q -P ./community/ "${mihomo_others[i]}"
@@ -212,7 +212,7 @@ jobs:
         echo "===== Prepare loon source ====="
         rm -rf ./tools/loon-ruleset
         mkdir -p ./tools/loon/domains ./tools/loon/ips
-        loon_domains=(ads trackerslist microsoft-cn apple-cn google-cn games-cn games netflix disney max primevideo appletv youtube tiktok bilibili spotify media ai networktest tld-proxy gfw proxy cn cn-lite)
+        loon_domains=(ads private trackerslist microsoft-cn apple-cn google-cn games-cn games netflix disney max primevideo appletv youtube tiktok bilibili spotify media ai networktest tld-proxy gfw proxy cn cn-lite)
         loon_ips=(privateip cnip telegramip netflixip mediaip)
         echo "===== Download domains ====="
         for domain in "${loon_domains[@]}"; do mkdir -p "./tools/loon/domains/${domain}"; curl -fsSL "${domains_download_url}/${domain}.list" -o "./tools/loon/domains/${domain}/${domain}.list"; done
@@ -222,7 +222,7 @@ jobs:
 
     - name: Generate `mihomo` rule-set (mrs) and move .list files
       run: |
-        curl -sS -o ./tools/mihomo -L https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-meta-linux-amd64-v3.upx
+        curl -sS -o ./tools/mihomo -L https://github.com/RuleKai/proxy-tools/releases/download/mihomo/mihomo-meta-linux-amd64-v3.upx
         chmod +x ./tools/mihomo
 
         cd ./tools/
@@ -262,7 +262,7 @@ jobs:
 
           # Generate `sing-box` rule_set
           cd ../
-          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/RuleKai/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset/
           cd ./tools/
@@ -279,7 +279,7 @@ jobs:
           echo "singbox_equal=false" >> $GITHUB_ENV
 
           # Generate `sing-box` rule_set (compatible)
-          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/RuleKai/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset-compatible/
           cd ./tools/
@@ -290,7 +290,7 @@ jobs:
 
           # Generate `sing-box` rule_set
           cd ../
-          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/RuleKai/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset/
           cd ./tools/
