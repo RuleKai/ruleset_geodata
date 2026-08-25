@@ -2,19 +2,18 @@ name: Build ruleset and geodata
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 19 * * *"
+  - cron: "0 19 * * *"
   push:
     branches:
-      - main
+    - main
     paths-ignore:
-      - "**/README.md"
-      - "**/*.ini"
+    - "**/README.md"
+    - "**/*.ini"
 
 permissions:
   contents: write
   actions: write
 
-  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,17 +26,17 @@ jobs:
         echo "singbox_core_compatible_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/{lines[++count]=$0} END{print lines[count-1]}' | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p')" >> ${GITHUB_ENV}
         echo "singbox_rules_latest_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/ {last=$0} END {print last}' | sed -n 's/^* \([0-9]\+\):.*/\1/p')" >> ${GITHUB_ENV}
         echo "singbox_rules_compatible_version=$(curl -sSL https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/configuration/rule-set/source-format.md | awk '/\*/{lines[++count]=$0} END{print lines[count-1]}' | sed -n 's/^* \([0-9]\+\):.*/\1/p')" >> ${GITHUB_ENV}
-        echo "domains_download_url=https://github.com/RuleForgeLab/domain-list-custom/releases/download/domains" >> ${GITHUB_ENV}
-        echo "ips_download_url=https://github.com/RuleForgeLab/geoip/releases/download/ips" >> ${GITHUB_ENV}
+        echo "domains_download_url=https://github.com/DustinWin/domain-list-custom/releases/download/domains" >> ${GITHUB_ENV}
+        echo "ips_download_url=https://github.com/DustinWin/geoip/releases/download/ips" >> ${GITHUB_ENV}
       shell: bash
 
     - name: Clone Repository
       uses: actions/checkout@v7
 
-    - name: Checkout `RuleForgeLab/domain-list-custom`
+    - name: Checkout `DustinWin/domain-list-custom`
       uses: actions/checkout@v7
       with:
-        repository: RuleForgeLab/domain-list-custom
+        repository: DustinWin/domain-list-custom
         path: custom
 
     - name: Checkout `v2fly/domain-list-community`
@@ -115,14 +114,14 @@ jobs:
       run: |
         mkdir -p ./mihomo-geodata/
         # Download mihomo geoip files (.mmdb)
-        mihomo_mmdb=($(curl -sSL https://api.github.com/repos/RuleForgeLab/geoip/releases | awk '/"browser_download_url"/' | awk '/.mmdb/' | awk -F '"' '{print $4}'))
+        mihomo_mmdb=($(curl -sSL https://api.github.com/repos/DustinWin/geoip/releases | awk '/"browser_download_url"/' | awk '/.mmdb/' | awk -F '"' '{print $4}'))
         count_mihomo_mmdb=${#mihomo_mmdb[@]}
         for ((i = 0; i < count_mihomo_mmdb; i++)); do
           wget -q -P ./mihomo-geodata/ "${mihomo_mmdb[i]}"
         done
 
         # Download `mihomo` other geoip files (except .mmdb)
-        mihomo_others=($(curl -sSL https://api.github.com/repos/RuleForgeLab/geoip/releases | awk '/"browser_download_url"/' | awk '/\/mihomo-geodata\//' | awk '!/\.mmdb/' | awk -F '"' '{print $4}'))
+        mihomo_others=($(curl -sSL https://api.github.com/repos/DustinWin/geoip/releases | awk '/"browser_download_url"/' | awk '/\/mihomo-geodata\//' | awk '!/\.mmdb/' | awk -F '"' '{print $4}'))
         count_mihomo_others=${#mihomo_others[@]}
         for ((i = 0; i < count_mihomo_others; i++)); do
           wget -q -P ./community/ "${mihomo_others[i]}"
@@ -209,28 +208,90 @@ jobs:
 
     - name: Download loon source rule files
       run: |
+
         set -e
+
         echo "===== Prepare loon source ====="
+
         rm -rf ./tools/loon-ruleset
         mkdir -p ./tools/loon/domains
         mkdir -p ./tools/loon/ips
-        loon_domains=( ads trackerslist microsoft-cn apple-cn google-cn games-cn games netflix disney max primevideo appletv youtube tiktok bilibili spotify media ai networktest tld-proxy gfw proxy cn cn-lite )
-        loon_ips=( privateip cnip telegramip netflixip mediaip )
+
+
+        loon_domains=(
+          ads
+          trackerslist
+          microsoft-cn
+          apple-cn
+          google-cn
+          games-cn
+          games
+          netflix
+          disney
+          max
+          primevideo
+          appletv
+          youtube
+          tiktok
+          bilibili
+          spotify
+          media
+          ai
+          networktest
+          tld-proxy
+          gfw
+          proxy
+          cn
+          cn-lite
+        )
+
+
+        loon_ips=(
+          privateip
+          cnip
+          telegramip
+          netflixip
+          mediaip
+        )
+
+
         echo "===== Download domains ====="
-        for domain in "${loon_domains[@]}"; do
+
+        for domain in "${loon_domains[@]}"
+        do
+
           mkdir -p "./tools/loon/domains/${domain}"
-          curl -fsSL "${domains_download_url}/${domain}.list" -o "./tools/loon/domains/${domain}/${domain}.list"
+
+          curl \
+          -fsSL \
+          "${domains_download_url}/${domain}.list" \
+          -o "./tools/loon/domains/${domain}/${domain}.list"
+
         done
+
+
+
         echo "===== Download ips ====="
-        for ip in "${loon_ips[@]}"; do
+
+        for ip in "${loon_ips[@]}"
+        do
+
           mkdir -p "./tools/loon/ips/${ip}"
-          curl -fsSL "${ips_download_url}/${ip}.list" -o "./tools/loon/ips/${ip}/${ip}.list"
+
+          curl \
+          -fsSL \
+          "${ips_download_url}/${ip}.list" \
+          -o "./tools/loon/ips/${ip}/${ip}.list"
+
         done
+
+
+
         echo "===== loon source download complete ====="
 
     - name: Generate `mihomo` rule-set (mrs) and move .list files
       run: |
-        curl -sS -o ./tools/mihomo -L https://github.com/RuleForgeLab/proxy-tools/releases/download/mihomo/mihomo-meta-linux-amd64-v3.upx
+        curl -sS -o ./tools/mihomo -L https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-meta-linux-amd64-v3.upx
         chmod +x ./tools/mihomo
 
         cd ./tools/
@@ -270,7 +331,7 @@ jobs:
 
           # Generate `sing-box` rule_set
           cd ../
-          curl -sS -o ./tools/sing-box -L https://github.com/RuleForgeLab/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset/
           cd ./tools/
@@ -287,7 +348,7 @@ jobs:
           echo "singbox_equal=false" >> $GITHUB_ENV
 
           # Generate `sing-box` rule_set (compatible)
-          curl -sS -o ./tools/sing-box -L https://github.com/RuleForgeLab/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset-compatible/
           cd ./tools/
@@ -298,7 +359,7 @@ jobs:
 
           # Generate `sing-box` rule_set
           cd ../
-          curl -sS -o ./tools/sing-box -L https://github.com/RuleForgeLab/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-amd64-v3.upx
+          curl -sS -o ./tools/sing-box -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-amd64-v3.upx
           chmod +x ./tools/sing-box
           mkdir -p ./sing-box-ruleset/
           cd ./tools/
@@ -442,47 +503,99 @@ jobs:
 
     - name: Release and upload `loon-ruleset` assets
       uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        release_name: loon-ruleset
-        tag: loon-ruleset
-        overwrite: true
-        body: "Loon 规则集文件\n更新于 ${{ env.update_version }}\n"
-        file_glob: true
-        file: ./loon-ruleset/*
 
+      with:
+
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+        release_name: loon-ruleset
+
+        tag: loon-ruleset
+
+        overwrite: true
+
+
+        body: |
+
+          Loon 规则集文件
+
+          更新于 ${{ env.update_version }}
+
+
+        file_glob: true
+
+        file: ./loon-ruleset/*
 
     - name: Commit and push `loon-ruleset` branch
       run: |
         set -e
         cd ./loon-ruleset || exit 1
-        if [ -z "$(ls -A)" ]; then echo "loon-ruleset empty"; exit 1; fi
+        if [ -z "$(ls -A)" ]
+        then
+          echo "loon-ruleset empty"
+          exit 1
+        fi
         git init
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git config user.name "github-actions[bot]"
+        git config user.email \
+        "github-actions[bot]@users.noreply.github.com"
+        git config user.name \
+        "github-actions[bot]"
         git switch -C loon-ruleset
         git add .
-        if git diff --cached --quiet; then echo "loon ruleset no change"; exit 0; fi
-        git commit -m "loon ruleset 更新于 ${update_version}"
+        if git diff --cached --quiet
+        then
+          echo "loon ruleset no change"
+          exit 0
+        fi
+        git commit \
+        -m "loon ruleset 更新于 ${update_version}"
         git remote remove origin 2>/dev/null || true
-        git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+        git remote add origin \
+        "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
         git push -f origin loon-ruleset
 
     - name: Purge jsDelivr CDN
       continue-on-error: true
       run: |
+
         purge() {
-          branch=$1 dir=$2
+          branch=$1
+          dir=$2
+
           cd "$dir" || exit 1
+
           for file in *; do
+
             if [ -f "$file" ]; then
+
               echo "Purge ${branch}/${file}"
-              curl -sS --retry 3 --retry-delay 5 --connect-timeout 10 --max-time 30 "https://purge.jsdelivr.net/gh/${{ github.repository }}@${branch}/${file}" || echo "Purge failed: ${branch}/${file}"
+
+              curl \
+                -sS \
+                --retry 3 \
+                --retry-delay 5 \
+                --connect-timeout 10 \
+                --max-time 30 \
+                "https://purge.jsdelivr.net/gh/${{ github.repository }}@${branch}/${file}" \
+                || echo "Purge failed: ${branch}/${file}"
+
             fi
+
           done
+
           cd - >/dev/null
         }
-        purge mihomo-geodata ./mihomo-geodata && purge mihomo-ruleset ./mihomo-ruleset && purge sing-box-ruleset-compatible ./sing-box-ruleset-compatible && purge sing-box-ruleset ./sing-box-ruleset && purge loon-ruleset ./loon-ruleset
+
+
+        purge mihomo-geodata ./mihomo-geodata
+
+        purge mihomo-ruleset ./mihomo-ruleset
+
+        purge sing-box-ruleset-compatible ./sing-box-ruleset-compatible
+
+        purge sing-box-ruleset ./sing-box-ruleset
+
+        purge loon-ruleset ./loon-ruleset
 
     - name: Delete old workflow runs
       uses: Mattraks/delete-workflow-runs@v2
